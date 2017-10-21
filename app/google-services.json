@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "293796590444",
+    "firebase_url": "https://parkr-180215.firebaseio.com",
+    "project_id": "parkr-180215",
+    "storage_bucket": "parkr-180215.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:293796590444:android:cf7576c491cb47a1",
+        "android_client_info": {
+          "package_name": "com.example.roystonbehzhiyang.parkr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "293796590444-tsnhs5jm6l6189idimbumffa54277dh1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDL8zrR9VHX772Afk5oG5UmK4DQhV5YKgk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Parkr</string>
+    <string name="address">Address</string>
+    <string name="parking_type">Parking Type</string>
+    <string name="type_of_carpark">Carpark Type</string>
+    <string name="lots_available">Available Lots</string>
+    <string name="total_lots">Total Lots</string>
+    <string name="lot_type">Lot Type</string>
+    <string name="night_parking">Night Parking</string>
+    <string name="short_term_parking">Short Term Parking</string>
+    <string name="free_parking">Free Parking</string>
+    <string name="favorite">Favorite</string>
+</resources>

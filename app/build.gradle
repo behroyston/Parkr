@@ -24,6 +24,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+//    buildTypes.each {
+//        it.buildConfigField 'String', 'GOOGLE_MAP_GEO_API_TOKEN', MyGoogleGeoAPI
+//    }
+
 }
 
 dependencies {

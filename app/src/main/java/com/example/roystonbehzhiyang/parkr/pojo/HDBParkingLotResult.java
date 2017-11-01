@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * Created by roystonbehzhiyang on 18/10/17.
  */
 
-public class ParkingLotResult {
+public class HDBParkingLotResult {
     @SerializedName("result")
-    public ArrayList<ParkingLot> parkingLots = new ArrayList<>();
+    public ArrayList<HDBParking> parkingLots = new ArrayList<>();
 }

@@ -9,24 +9,27 @@ import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
- * Created by roystonbehzhiyang on 18/10/17.
+ * Created by roystonbehzhiyang on 30/10/17.
  */
 
-
-public class ParkingLot extends RealmObject implements Parcelable {
+public class HDBParking extends RealmObject implements Parcelable
+{
 
     @PrimaryKey
     @SerializedName("carpark no.")
     private String mCarpark_no;
-
-    @SerializedName("address")
-    private String mAddress;
 
     @SerializedName("lat")
     private double mLat;
 
     @SerializedName("lon")
     private double mLon;
+
+    @SerializedName("lots_available")
+    private String mLots_available;
+
+    @SerializedName("address")
+    private String mAddress;
 
     @SerializedName("car_park_type")
     private String mCar_park_type;
@@ -46,38 +49,25 @@ public class ParkingLot extends RealmObject implements Parcelable {
     @SerializedName("total_lots_available")
     private String mTotal_lots_available;
 
-    @SerializedName("lots_available")
-    private String mLots_available;
-
     @SerializedName("lots_type")
     private String mLots_type;
 
-    public ParkingLot(){}
-
-    public ParkingLot(String carpark_no, String address, double lat, double lon, String car_park_type, String type_of_parking,
-                      String short_term_parking, String free_parking, String night_parking, String total_lots_available,
-                      String lots_available, String lots_type) {
-        mCarpark_no = carpark_no;
-        mAddress = address;
+    public HDBParking(){}
+    
+    public HDBParking(String car_park_no, double lat, double lon, String lots_available, String address, String car_park_type, String type_of_parking, String short_term_parking,
+                      String free_parking, String night_parking, String total_lots_available, String lots_type){
+        mCarpark_no = car_park_no;
         mLat = lat;
         mLon = lon;
+        mLots_available = lots_available;
+        mAddress = address;
         mCar_park_type = car_park_type;
         mType_of_parking = type_of_parking;
         mShort_term_parking = short_term_parking;
         mFree_parking = free_parking;
         mNight_parking = night_parking;
         mTotal_lots_available = total_lots_available;
-        mLots_available = lots_available;
         mLots_type = lots_type;
-    }
-
-
-    public String getmCarpark_no() {
-        return mCarpark_no;
-    }
-
-    public void setmCarpark_no(String mCarpark_no) {
-        this.mCarpark_no = mCarpark_no;
     }
 
     public String getmAddress() {
@@ -86,22 +76,6 @@ public class ParkingLot extends RealmObject implements Parcelable {
 
     public void setmAddress(String mAddress) {
         this.mAddress = mAddress;
-    }
-
-    public double getmLat() {
-        return mLat;
-    }
-
-    public void setmLat(double mLat) {
-        this.mLat = mLat;
-    }
-
-    public double getmLon() {
-        return mLon;
-    }
-
-    public void setmLon(double mLon) {
-        this.mLon = mLon;
     }
 
     public String getmCar_park_type() {
@@ -152,14 +126,6 @@ public class ParkingLot extends RealmObject implements Parcelable {
         this.mTotal_lots_available = mTotal_lots_available;
     }
 
-    public String getmLots_available() {
-        return mLots_available;
-    }
-
-    public void setmLots_available(String mLots_available) {
-        this.mLots_available = mLots_available;
-    }
-
     public String getmLots_type() {
         return mLots_type;
     }
@@ -168,18 +134,50 @@ public class ParkingLot extends RealmObject implements Parcelable {
         this.mLots_type = mLots_type;
     }
 
-    private ParkingLot(Parcel in) {
+    public String getmCarpark_no() {
+        return mCarpark_no;
+    }
+
+    public void setmCarpark_no(String mCarpark_no) {
+        this.mCarpark_no = mCarpark_no;
+    }
+
+    public double getmLat() {
+        return mLat;
+    }
+
+    public void setmLat(double mLat) {
+        this.mLat = mLat;
+    }
+
+    public double getmLon() {
+        return mLon;
+    }
+
+    public void setmLon(double mLon) {
+        this.mLon = mLon;
+    }
+
+    public String getmLots_available() {
+        return mLots_available;
+    }
+
+    public void setmLots_available(String mLots_available) {
+        this.mLots_available = mLots_available;
+    }
+
+    private HDBParking(Parcel in) {
         mCarpark_no = in.readString();
-        mAddress = in.readString();
         mLat = in.readDouble();
         mLon = in.readDouble();
+        mLots_available = in.readString();
+        mAddress = in.readString();
         mCar_park_type = in.readString();
         mType_of_parking = in.readString();
         mShort_term_parking = in.readString();
         mFree_parking = in.readString();
         mNight_parking = in.readString();
         mTotal_lots_available = in.readString();
-        mLots_available = in.readString();
         mLots_type = in.readString();
     }
 
@@ -191,30 +189,30 @@ public class ParkingLot extends RealmObject implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(mCarpark_no);
-        parcel.writeString(mAddress);
         parcel.writeDouble(mLat);
         parcel.writeDouble(mLon);
-        parcel.writeString(mCar_park_type);
+        parcel.writeString(mLots_available);
+        parcel.writeString(mAddress);
         parcel.writeString(mType_of_parking);
+        parcel.writeString(mCar_park_type);
         parcel.writeString(mShort_term_parking);
         parcel.writeString(mFree_parking);
         parcel.writeString(mNight_parking);
         parcel.writeString(mTotal_lots_available);
-        parcel.writeString(mLots_available);
         parcel.writeString(mLots_type);
     }
 
-    public final static Creator<ParkingLot> CREATOR = new Creator<ParkingLot>() {
+    public final static Creator<HDBParking> CREATOR = new Creator<HDBParking>() {
         @Override
-        public ParkingLot createFromParcel(Parcel parcel) {
-            return new ParkingLot(parcel);
+        public HDBParking createFromParcel(Parcel parcel) {
+            return new HDBParking(parcel);
         }
 
         @Override
-        public ParkingLot[] newArray(int i) {
-            return new ParkingLot[i];
+        public HDBParking[] newArray(int i) {
+            return new HDBParking[i];
         }
 
     };
-}
 
+}

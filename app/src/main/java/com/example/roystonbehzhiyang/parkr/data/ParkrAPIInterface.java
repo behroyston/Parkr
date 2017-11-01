@@ -1,6 +1,6 @@
 package com.example.roystonbehzhiyang.parkr.data;
 
-import com.example.roystonbehzhiyang.parkr.pojo.ParkingLotResult;
+import com.example.roystonbehzhiyang.parkr.pojo.HDBParkingLotResult;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -13,6 +13,6 @@ import retrofit2.http.Query;
 public interface ParkrAPIInterface {
 
     @GET(".")
-    Call<ParkingLotResult> getParkingLots(@Query("lat") double lat, @Query("lon") double lon);
+    Call<HDBParkingLotResult> getParkingLots(@Query("lat") double lat, @Query("lon") double lon);
 
 }

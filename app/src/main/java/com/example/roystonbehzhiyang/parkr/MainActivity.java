@@ -3,6 +3,9 @@ package com.example.roystonbehzhiyang.parkr;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,8 +24,9 @@ import android.widget.TextView;
 import com.example.roystonbehzhiyang.parkr.data.ParkrAPIInterface;
 import com.example.roystonbehzhiyang.parkr.data.RetrofitClient;
 import com.example.roystonbehzhiyang.parkr.pojo.AsyncCompletedEvent;
-import com.example.roystonbehzhiyang.parkr.pojo.ParkingLot;
-import com.example.roystonbehzhiyang.parkr.pojo.ParkingLotResult;
+import com.example.roystonbehzhiyang.parkr.pojo.HDBParking;
+import com.example.roystonbehzhiyang.parkr.pojo.HDBParkingLotResult;
+import com.example.roystonbehzhiyang.parkr.pojo.ShoppingParking;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -36,6 +40,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -99,10 +105,13 @@ public class MainActivity extends AppCompatActivity
     private Context mContext;
 
     // ArrayList to store dummy data.
-    private ArrayList<ParkingLot> myParkingLots = new ArrayList<>();
+    private ArrayList<HDBParking> myParkingLots = new ArrayList<>();
 
-    // Hashmap to contain the data and map to my parking lots.
-    private HashMap<Marker, ParkingLot> hashMap = new HashMap<Marker, ParkingLot>();
+    // Hashmap to contain the HDBParking and map to my parking lots.
+    private HashMap<Marker, HDBParking> hashMap = new HashMap<Marker, HDBParking>();
+
+    // Hashmap to contain ShoppingParking and map to the shopping lots;
+    private HashMap<Marker, ShoppingParking> shoppingMap = new HashMap<Marker,ShoppingParking>();
 
     // APIInterface
     private ParkrAPIInterface myAPIInterface;
@@ -124,11 +133,11 @@ public class MainActivity extends AppCompatActivity
 
     // Realm Instance
     private Realm realm;
-    
+
     // Check if started from FavouriteActivity to mark out that favourited parking spot.
     private boolean fromFavourite;
-    // ParkingLot from favourite
-    private ParkingLot mFavouriteParkingLot;
+    // HDBParking from favourite
+    private HDBParking mFavouriteParkingLot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,7 +159,7 @@ public class MainActivity extends AppCompatActivity
 
         // fromFavourite is always false at start unless started from Favouriteactivity.
         fromFavourite = false;
-        
+
         // Retrieve parcel from FavouriteActivity, if any
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -222,14 +231,25 @@ public class MainActivity extends AppCompatActivity
         // apicall
         // always clear the data in the hashmap so it only contains the most recent 5 datapoints.
         hashMap.clear();
-        for (ParkingLot mParkingLot : myParkingLots) {
+        for (HDBParking mParkingLot : myParkingLots) {
             LatLng parkingLatLng = new LatLng(mParkingLot.getmLat(),mParkingLot.getmLon());
             Marker marker = setMarkers((parkingLatLng),(mParkingLot.getmCarpark_no()));
+            marker.setIcon(bitmapDescriptorFromVector(this,R.drawable.ic_local_parking_black_24dp));
             Log.d(TAG, mParkingLot.getmCarpark_no());
             // each marker is mapped to the parking lot to show the data later on.
             hashMap.put(marker,mParkingLot);
         }
     }
+
+    private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
 
     private Marker setMarkers(LatLng latlng, String title){
         if (mMap != null) {
@@ -244,24 +264,24 @@ public class MainActivity extends AppCompatActivity
      */
     private void apiCall(double lat, double lon) {
         myAPIInterface = RetrofitClient.getClient(myURL).create(ParkrAPIInterface.class);
-        Call<ParkingLotResult> call = myAPIInterface.getParkingLots(lat,lon);
-        call.enqueue(new Callback<ParkingLotResult>() {
+        Call<HDBParkingLotResult> call = myAPIInterface.getParkingLots(lat,lon);
+        call.enqueue(new Callback<HDBParkingLotResult>() {
             @Override
-            public void onResponse(Call<ParkingLotResult> call, Response<ParkingLotResult> response) {
-                ParkingLotResult results = response.body();
+            public void onResponse(Call<HDBParkingLotResult> call, Response<HDBParkingLotResult> response) {
+                HDBParkingLotResult results = response.body();
                 if (results != null) {
                     Log.i(TAG, "IT WORKED!");
-                    ArrayList<ParkingLot> parkingLots = results.parkingLots;
+                    ArrayList<HDBParking> parkingLots = results.parkingLots;
                     myParkingLots = parkingLots;
                     EventBus.getDefault().post(new AsyncCompletedEvent());
-                    for (ParkingLot mParkingLot : myParkingLots) {
+                    for (HDBParking mParkingLot : myParkingLots) {
                         Log.i(TAG,"Lat: " + mParkingLot.getmLat() + "\nLon: " + mParkingLot.getmLon());
                     }
                 }
             }
             @Override
-            public void onFailure(Call<ParkingLotResult> call, Throwable t) {
-                
+            public void onFailure(Call<HDBParkingLotResult> call, Throwable t) {
+
                 Log.e(TAG,"FAILED!");
             }
         });
@@ -312,6 +332,17 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    private void viewDetails(Marker marker){
+        HDBParking parkingLot = hashMap.get(marker);
+        Log.e(TAG,"Clicked!");
+        if (parkingLot != null) {
+            Log.e(TAG,"Not Null!");
+            Intent intent = new Intent(mContext, ParkingLotDetails.class);
+            intent.putExtra(PARKING_LOT_DETAILS, parkingLot);
+            mContext.startActivity(intent);
+        }
+    }
+
     /**
      * Manipulates the map when it's available.
      * This callback is triggered when the map is ready to be used.
@@ -325,14 +356,7 @@ public class MainActivity extends AppCompatActivity
             mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                 @Override
                 public void onInfoWindowClick(Marker marker) {
-                    ParkingLot parkingLot = hashMap.get(marker);
-                    Log.e(TAG,"Clicked!");
-                    if (parkingLot != null) {
-                        Log.e(TAG,"Not Null!");
-                        Intent intent = new Intent(mContext, ParkingLotDetails.class);
-                        intent.putExtra(PARKING_LOT_DETAILS, parkingLot);
-                        mContext.startActivity(intent);
-                    }
+                    viewDetails(marker);
                 }
             });
         }
@@ -370,13 +394,13 @@ public class MainActivity extends AppCompatActivity
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-                        } 
+                        }
                         else if (fromFavourite) {
                             LatLng latLng = new LatLng(mFavouriteParkingLot.getmLat(),mFavouriteParkingLot.getmLon());
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     latLng, DEFAULT_ZOOM));
                             Marker marker = setMarkers(latLng, mFavouriteParkingLot.getmCarpark_no());
-                            hashMap.put(marker,mFavouriteParkingLot);
+                            //hashMap.put(marker,mFavouriteParkingLot);
                         }
                         else {
                             Log.d(TAG, "Current location is null. Using defaults.");
@@ -457,16 +481,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setDummyData() {
-            myParkingLots.add(new ParkingLot("Y13", "BLK 201/202, 207/212 YISHUN STREET 21", 1.431208,103.837865, "SURFACE CAR PARK",
-            "ELECTRONIC PARKING","WHOLE DAY","NO","YES", "200", "10", "C"));
-            myParkingLots.add(new ParkingLot("Y14", "BLK 203/206, 213/226 YISHUN STREET 21", 1.432667,103.835661, "SURFACE CAR PARK",
-                    "COUPON PARKING","WHOLE DAY","SUN & PH FR 7AM-10.30PM","YES", "150", "20", "C"));
-            myParkingLots.add(new ParkingLot("Y5", "BLK 144/199 YISHUN STREET 11", 1.431108,103.832108, "SURFACE CAR PARK",
-                    "ELECTRONIC PARKING","7AM-10.30PM","SUN & PH FR 7AM-10.30PM","NO", "100", "20", "C"));
-            myParkingLots.add(new ParkingLot("Y6", "BLK 150/161 YISHUN STREET 11", 1.432516 ,103.834194, "SURFACE CARPARK",
-                    "ELECTRONIC PARKING","7AM-10.30PM","SUN & PH FR 7AM-10.30PM","NO", "50", "30", "C"));
-            myParkingLots.add(new ParkingLot("Y9", " BLK 747/752 YISHUN STREET 72", 1.427824,103.834013, "SURFACE CAR PARK",
-                    "ELECTRONIC PARKING","WHOLE DAY","SUN & PH FR 7AM-10.30PM","YES", "50", "50", "C"));
+            myParkingLots.add(new HDBParking("Y13",  1.431208,103.837865, "10", "BLK 201/202, 207/212 YISHUN STREET 21","SURFACE CAR PARK",
+            "ELECTRONIC PARKING","WHOLE DAY","NO","YES", "200", "C"));
+            myParkingLots.add(new HDBParking("Y14",  1.432667,103.835661, "20","BLK 203/206, 213/226 YISHUN STREET 21","SURFACE CAR PARK",
+                    "COUPON PARKING","WHOLE DAY","SUN & PH FR 7AM-10.30PM","YES", "150", "C"));
+            myParkingLots.add(new HDBParking("Y5", 1.431108,103.832108, "20","BLK 144/199 YISHUN STREET 11","SURFACE CAR PARK",
+                    "ELECTRONIC PARKING","7AM-10.30PM","SUN & PH FR 7AM-10.30PM","NO", "100", "C"));
+            myParkingLots.add(new HDBParking("Y6", 1.432516 ,103.834194, "30","BLK 150/161 YISHUN STREET 11","SURFACE CARPARK",
+                    "ELECTRONIC PARKING","7AM-10.30PM","SUN & PH FR 7AM-10.30PM","NO", "50", "C"));
+            myParkingLots.add(new HDBParking("Y9", 1.427824,103.834013,  "50","BLK 747/752 YISHUN STREET 72", "SURFACE CAR PARK",
+                    "ELECTRONIC PARKING","WHOLE DAY","SUN & PH FR 7AM-10.30PM","YES", "50", "C"));
     }
 
 
@@ -486,16 +510,30 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        final ParkingLot mParkingLot = hashMap.get(marker);
-        if (mParkingLot != null) {
-            bottom_sheet_title.setText("Address: " + mParkingLot.getmAddress());
-            bottom_sheet_lots.setText("Total Lots: " + mParkingLot.getmLots_available());
-            bottom_sheet_total.setText("Current Lots Available: " + mParkingLot.getmTotal_lots_available());
-            bottom_sheet_lot_type.setText("Lots Type: " + mParkingLot.getmLots_type());
+
+        if (hashMap.containsKey(marker)){
+            HDBParking mParkingLot = hashMap.get(marker);
+            setBottomViewHDB(mParkingLot);
+        }
+        else {
+            ShoppingParking mParkingLot = shoppingMap.get(marker);
+            setBottomViewHDB(mParkingLot);
+        }
+        marker.showInfoWindow();
+
+        return true;
+    }
+
+    private void setBottomViewHDB(final HDBParking parkingLot){
+        if (parkingLot != null) {
+            bottom_sheet_title.setText("Address: " + parkingLot.getmAddress());
+            bottom_sheet_lots.setText("Total Lots: " + parkingLot.getmLots_available());
+            bottom_sheet_total.setText("Current Lots Available: " + parkingLot.getmTotal_lots_available());
+            bottom_sheet_lot_type.setText("Lots Type: " + parkingLot.getmLots_type());
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
             // check if it has already been favourited(if it is, set the full heartshape)
-            if (favouriteExists(mParkingLot)) {
+            if (favouriteHDBExists(parkingLot)) {
                 favourite.setImageResource(R.drawable.ic_favorite_black_24dp);
             }
             else
@@ -506,45 +544,74 @@ public class MainActivity extends AppCompatActivity
             favourite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (!favouriteExists(mParkingLot)){
-                        addFavourite(mParkingLot);
+                    if (!favouriteHDBExists(parkingLot)){
+                        addFavourite(parkingLot);
                         favourite.setImageResource(R.drawable.ic_favorite_black_24dp);
                     }
                     else
                     {
-                        removeFavourite(mParkingLot);
+                        removeFavourite(parkingLot);
                         favourite.setImageResource(R.drawable.ic_favorite_border_black_24dp);
                     }
                 }
             });
         }
-        marker.showInfoWindow();
-
-        return true;
     }
 
-    private boolean favouriteExists(ParkingLot parkingLot)
+    private void setBottomViewHDB(final ShoppingParking parkingLot){
+        if (parkingLot != null) {
+            bottom_sheet_title.setText("Shopping Mall: " + parkingLot.getmDevelopment());
+            bottom_sheet_lots.setText("Total Lots: " + parkingLot.getmLots_available());
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+
+            // check if it has already been favourited(if it is, set the full heartshape)
+//            if (favouriteHDBExists(parkingLot)) {
+//                favourite.setImageResource(R.drawable.ic_favorite_black_24dp);
+//            }
+//            else
+//            {
+//                favourite.setImageResource(R.drawable.ic_favorite_border_black_24dp);
+//            }
+
+//            favourite.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if (!favouriteHDBExists(parkingLot)){
+//                        addFavourite(parkingLot);
+//                        favourite.setImageResource(R.drawable.ic_favorite_black_24dp);
+//                    }
+//                    else
+//                    {
+//                        removeFavourite(parkingLot);
+//                        favourite.setImageResource(R.drawable.ic_favorite_border_black_24dp);
+//                    }
+//                }
+//            });
+        }
+    }
+
+    private boolean favouriteHDBExists(HDBParking parkingLot)
     {
 //        // Query Realm for all dogs younger than 2 years old
 //        final RealmResults<ParkingLot> parkingLots = realm.where(ParkingLot.class).findAll();
 //        if (parkingLots.contains(parkingLot)) {
 //            return true;
 //        }
-        ParkingLot mParkingLot = realm.where(ParkingLot.class).equalTo("mCarpark_no", parkingLot.getmCarpark_no()).findFirst();
+        HDBParking mParkingLot = realm.where(HDBParking.class).equalTo("mCarpark_no", parkingLot.getmCarpark_no()).findFirst();
 
         return (mParkingLot!=null);
     }
 
-    private void addFavourite(ParkingLot parkingLot){
+    private void addFavourite(HDBParking parkingLot){
         realm.beginTransaction();
         realm.insert(parkingLot);
         realm.commitTransaction();
         Log.d(TAG,"Favourite added!");
     }
 
-    private void removeFavourite(ParkingLot parkingLot){
+    private void removeFavourite(HDBParking parkingLot){
         realm.beginTransaction();
-        ParkingLot mParkingLot = realm.where(ParkingLot.class).equalTo("mCarpark_no", parkingLot.getmCarpark_no()).findFirst();
+        HDBParking mParkingLot = realm.where(HDBParking.class).equalTo("mCarpark_no", parkingLot.getmCarpark_no()).findFirst();
         mParkingLot.deleteFromRealm();
         realm.commitTransaction();
         Log.d(TAG,"Favourite removed!");

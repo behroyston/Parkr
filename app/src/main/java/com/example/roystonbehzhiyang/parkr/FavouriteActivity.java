@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import com.example.roystonbehzhiyang.parkr.pojo.ParkingLot;
+import com.example.roystonbehzhiyang.parkr.pojo.HDBParking;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -17,7 +17,7 @@ public class FavouriteActivity extends AppCompatActivity implements FavouriteAda
 
     private final String TAG = FavouriteActivity.class.getSimpleName();
 
-    private RealmResults<ParkingLot> myParkingLots;
+    private RealmResults<HDBParking> myParkingLots;
 
     public final static String PARKING_LOT_FAVOURITE = "parking_lot_favourite";
 
@@ -28,7 +28,7 @@ public class FavouriteActivity extends AppCompatActivity implements FavouriteAda
 
         realm = Realm.getDefaultInstance();
 
-        myParkingLots = realm.where(ParkingLot.class).findAll();
+        myParkingLots = realm.where(HDBParking.class).findAll();
 
         FavouriteAdapter mAdapter = new FavouriteAdapter(this,this, myParkingLots);
 
@@ -41,7 +41,7 @@ public class FavouriteActivity extends AppCompatActivity implements FavouriteAda
 
     @Override
     public void onClick(int id) {
-        ParkingLot mParkingLot = myParkingLots.get(id);
+        HDBParking mParkingLot = myParkingLots.get(id);
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(PARKING_LOT_FAVOURITE, mParkingLot);
         startActivity(intent);

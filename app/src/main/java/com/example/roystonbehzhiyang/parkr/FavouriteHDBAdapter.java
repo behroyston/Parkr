@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.roystonbehzhiyang.parkr.pojo.ParkingLot;
+import com.example.roystonbehzhiyang.parkr.pojo.HDBParking;
 
 import io.realm.RealmResults;
 
@@ -20,14 +20,14 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.Favo
 
     final private FavouriteAdapterOnClickHandler mClickHandler;
     private Context mContext;
-    private RealmResults<ParkingLot> mParkingLot;
+    private RealmResults<HDBParking> mParkingLot;
     private final String TAG = FavouriteAdapter.class.getSimpleName();
 
     public interface FavouriteAdapterOnClickHandler {
         void onClick(int id);
     }
 
-    public FavouriteAdapter(Context context, FavouriteAdapterOnClickHandler clickHandler, RealmResults<ParkingLot> parkingLots) {
+    public FavouriteAdapter(Context context, FavouriteAdapterOnClickHandler clickHandler, RealmResults<HDBParking> parkingLots) {
         mContext = context;
         mClickHandler = clickHandler;
         mParkingLot = parkingLots;
@@ -37,7 +37,7 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.Favo
     public FavouriteViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater
                 .from(mContext)
-                .inflate(R.layout.favourite_item, viewGroup, false);
+                .inflate(R.layout.favourite_hdb_parking, viewGroup, false);
 
         view.setFocusable(true);
 
@@ -46,7 +46,7 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.Favo
 
     @Override
     public void onBindViewHolder(FavouriteViewHolder holder, int position) {
-        ParkingLot parkingLot = mParkingLot.get(position);
+        HDBParking parkingLot = mParkingLot.get(position);
         holder.favouriteAddress.setText("Address: " + parkingLot.getmAddress());
         holder.favouriteTotalLots.setText("Total Lots: " + parkingLot.getmTotal_lots_available());
         holder.favouriteAvailableLots.setText("Lots Available: " + parkingLot.getmLots_available());

@@ -10,4 +10,5 @@
     <string name="short_term_parking">Short Term Parking</string>
     <string name="free_parking">Free Parking</string>
     <string name="favorite">Favorite</string>
+    <string name="view_details">View Details</string>
 </resources>

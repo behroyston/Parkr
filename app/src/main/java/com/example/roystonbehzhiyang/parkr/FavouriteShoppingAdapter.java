@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.roystonbehzhiyang.parkr.pojo.HDBParking;
+import com.example.roystonbehzhiyang.parkr.pojo.ShoppingParking;
 
 import io.realm.RealmResults;
 
@@ -16,39 +16,39 @@ import io.realm.RealmResults;
  * Created by roystonbehzhiyang on 22/10/17.
  */
 
-public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.FavouriteViewHolder> {
+public class FavouriteShoppingAdapter extends RecyclerView.Adapter<FavouriteShoppingAdapter.FavouriteShoppingViewHolder> {
 
-    final private FavouriteAdapterOnClickHandler mClickHandler;
+    final private FavouriteShoppingAdapterOnClickHandler mClickHandler;
     private Context mContext;
-    private RealmResults<HDBParking> mParkingLot;
-    private final String TAG = FavouriteAdapter.class.getSimpleName();
+    private RealmResults<ShoppingParking> mParkingLot;
+    private final String TAG = FavouriteShoppingAdapter.class.getSimpleName();
 
-    public interface FavouriteAdapterOnClickHandler {
-        void onClick(int id);
+    public interface FavouriteShoppingAdapterOnClickHandler {
+        void onClickShopping(int id);
     }
 
-    public FavouriteAdapter(Context context, FavouriteAdapterOnClickHandler clickHandler, RealmResults<HDBParking> parkingLots) {
+    public FavouriteShoppingAdapter(Context context, FavouriteShoppingAdapterOnClickHandler clickHandler, RealmResults<ShoppingParking> parkingLots) {
         mContext = context;
         mClickHandler = clickHandler;
         mParkingLot = parkingLots;
     }
 
     @Override
-    public FavouriteViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public FavouriteShoppingViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater
                 .from(mContext)
-                .inflate(R.layout.favourite_hdb_parking, viewGroup, false);
+                .inflate(R.layout.favourite_shopping_parking, viewGroup, false);
 
         view.setFocusable(true);
 
-        return new FavouriteViewHolder(view);
+        return new FavouriteShoppingViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(FavouriteViewHolder holder, int position) {
-        HDBParking parkingLot = mParkingLot.get(position);
-        holder.favouriteAddress.setText("Address: " + parkingLot.getmAddress());
-        holder.favouriteTotalLots.setText("Total Lots: " + parkingLot.getmTotal_lots_available());
+    public void onBindViewHolder(FavouriteShoppingViewHolder holder, int position) {
+        ShoppingParking parkingLot = mParkingLot.get(position);
+        holder.favouriteArea.setText("Area: " + parkingLot.getmArea());
+        holder.favouriteDevelopment.setText("Shopping Centre: " + parkingLot.getmDevelopment());
         holder.favouriteAvailableLots.setText("Lots Available: " + parkingLot.getmLots_available());
         //Log.d(TAG,"Position: " + position);
     }
@@ -60,23 +60,23 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.Favo
     }
 
 
-    class FavouriteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class FavouriteShoppingViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        final TextView favouriteAddress;
+        final TextView favouriteArea;
 
-        final TextView favouriteTotalLots;
+        final TextView favouriteDevelopment;
 
         final TextView favouriteAvailableLots;
 
 
-        FavouriteViewHolder(View view) {
+        FavouriteShoppingViewHolder(View view) {
             super(view);
 
-            favouriteAddress = (TextView) view.findViewById(R.id.favourite_address);
+            favouriteArea = (TextView) view.findViewById(R.id.favourite_shopping_area);
 
-            favouriteTotalLots = (TextView) view.findViewById(R.id.favourite_total_lots);
+            favouriteDevelopment = (TextView) view.findViewById(R.id.favourite_shopping_name);
 
-            favouriteAvailableLots = (TextView) view.findViewById(R.id.favourite_lots_available);
+            favouriteAvailableLots = (TextView) view.findViewById(R.id.favourite_shopping_lots_available);
 
             view.setOnClickListener(this);
         }
@@ -84,7 +84,7 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.Favo
         @Override
         public void onClick(View v) {
             int position = getLayoutPosition();
-            mClickHandler.onClick(position);
+            mClickHandler.onClickShopping(position);
             Log.d(TAG,"Clicked Position: " + position);
         }
     }

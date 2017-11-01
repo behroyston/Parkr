@@ -11,4 +11,6 @@
     <string name="free_parking">Free Parking</string>
     <string name="favorite">Favorite</string>
     <string name="view_details">View Details</string>
+    <string name="shopping_centre">Shopping Centres Parkings</string>
+    <string name="hdb">HDB Parkings</string>
 </resources>

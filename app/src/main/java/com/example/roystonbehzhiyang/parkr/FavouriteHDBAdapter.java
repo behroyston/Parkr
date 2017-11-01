@@ -16,18 +16,18 @@ import io.realm.RealmResults;
  * Created by roystonbehzhiyang on 22/10/17.
  */
 
-public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.FavouriteViewHolder> {
+public class FavouriteHDBAdapter extends RecyclerView.Adapter<FavouriteHDBAdapter.FavouriteViewHolder> {
 
     final private FavouriteAdapterOnClickHandler mClickHandler;
     private Context mContext;
     private RealmResults<HDBParking> mParkingLot;
-    private final String TAG = FavouriteAdapter.class.getSimpleName();
+    private final String TAG = FavouriteHDBAdapter.class.getSimpleName();
 
     public interface FavouriteAdapterOnClickHandler {
         void onClick(int id);
     }
 
-    public FavouriteAdapter(Context context, FavouriteAdapterOnClickHandler clickHandler, RealmResults<HDBParking> parkingLots) {
+    public FavouriteHDBAdapter(Context context, FavouriteAdapterOnClickHandler clickHandler, RealmResults<HDBParking> parkingLots) {
         mContext = context;
         mClickHandler = clickHandler;
         mParkingLot = parkingLots;

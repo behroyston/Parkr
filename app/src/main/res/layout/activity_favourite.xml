@@ -1,14 +1,39 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/activity_vertical_margin">
+
+    <TextView
+        android:id="@+id/hdb"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/material_text_title"
+        android:text="@string/hdb"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/carpark_favourite_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:scrollbars="vertical"
+        android:layout_below="@+id/hdb"
         >
     </android.support.v7.widget.RecyclerView>
 
+    <TextView
+        android:id="@+id/shopping"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/material_text_title"
+        android:text="@string/shopping_centre"
+        android:layout_below="@+id/carpark_favourite_recycler_view"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/shopping_favourite_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        android:layout_below="@+id/shopping"
+        >
+    </android.support.v7.widget.RecyclerView>
 
 </RelativeLayout>

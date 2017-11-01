@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import com.example.roystonbehzhiyang.parkr.pojo.HDBParking;
+import com.example.roystonbehzhiyang.parkr.pojo.ShoppingParking;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -12,6 +13,7 @@ import butterknife.ButterKnife;
 public class ParkingLotDetails extends AppCompatActivity {
 
     private HDBParking mParkingLot;
+    private ShoppingParking mShoppingLot;
     @BindView(R.id.address)
     TextView address;
 
@@ -46,8 +48,15 @@ public class ParkingLotDetails extends AppCompatActivity {
         ButterKnife.bind(this);
 
         Bundle extras = getIntent().getExtras();
-        mParkingLot = extras.getParcelable(MainActivity.PARKING_LOT_DETAILS);
+        if (extras!= null) {
+            mParkingLot = extras.getParcelable(MainActivity.HDB_PARKING_LOT_DETAILS);
+            setHDB();
+        }
 
+
+    }
+
+    private void setHDB(){
         address.setText(mParkingLot.getmAddress());
         car_park_type.setText(mParkingLot.getmCar_park_type());
         parking_type.setText(mParkingLot.getmType_of_parking());
@@ -57,7 +66,6 @@ public class ParkingLotDetails extends AppCompatActivity {
         total_lots_available.setText(mParkingLot.getmTotal_lots_available());
         lots_available.setText(mParkingLot.getmLots_available());
         lots_type.setText(mParkingLot.getmLots_type());
-
-
     }
+
 }

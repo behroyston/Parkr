@@ -66,7 +66,7 @@ public class ShoppingParking extends RealmObject implements Parcelable{
     public void setmCarpark_no(String mCarpark_no) {
         this.mCarpark_no = mCarpark_no;
     }
-    
+
     public double getmLat() {
         return mLat;
     }
@@ -127,9 +127,5 @@ public class ShoppingParking extends RealmObject implements Parcelable{
         }
 
     };
-
-
-
-
 
 }

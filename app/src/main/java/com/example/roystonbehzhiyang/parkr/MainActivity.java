@@ -18,18 +18,22 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.roystonbehzhiyang.parkr.data.ParkrAPIInterface;
 import com.example.roystonbehzhiyang.parkr.data.RetrofitClient;
-import com.example.roystonbehzhiyang.parkr.pojo.AsyncCompletedEvent;
+import com.example.roystonbehzhiyang.parkr.eventbus.AsyncCompletedEvent;
+import com.example.roystonbehzhiyang.parkr.eventbus.ShoppingAsyncCompletedEvent;
 import com.example.roystonbehzhiyang.parkr.pojo.HDBParking;
 import com.example.roystonbehzhiyang.parkr.pojo.HDBParkingLotResult;
 import com.example.roystonbehzhiyang.parkr.pojo.ShoppingParking;
+import com.example.roystonbehzhiyang.parkr.pojo.ShoppingParkingLotResult;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceDetectionClient;
@@ -99,13 +103,18 @@ public class MainActivity extends AppCompatActivity
     private static final String KEY_LOCATION = "location";
 
     // Key for passing data to details.
-    public static final String PARKING_LOT_DETAILS = "parking_lot_details";
+    public static final String HDB_PARKING_LOT_DETAILS = "HDB_PARKING_LOT_DETAILS";
+
+    // Key for passing data to details.
+    public static final String SHOPPING_PARKING_LOT_DETAILS = "SHOPPING_PARKING_LOT_DETAILS";
 
     // Context
     private Context mContext;
 
     // ArrayList to store dummy data.
     private ArrayList<HDBParking> myParkingLots = new ArrayList<>();
+
+    private ArrayList<ShoppingParking> myShoppingLots = new ArrayList<>();
 
     // Hashmap to contain the HDBParking and map to my parking lots.
     private HashMap<Marker, HDBParking> hashMap = new HashMap<Marker, HDBParking>();
@@ -117,7 +126,7 @@ public class MainActivity extends AppCompatActivity
     private ParkrAPIInterface myAPIInterface;
 
     // URL
-    private String myURL = "http://5994b7f7.ngrok.io/";
+    private String myURL = "http://4bf95009.ngrok.io/";
 
     private BottomSheetBehavior bottomSheetBehavior;
     @BindView (R.id.bottom_sheet_title)
@@ -130,6 +139,8 @@ public class MainActivity extends AppCompatActivity
     TextView bottom_sheet_lots;
     @BindView (R.id.favourite)
     ImageButton favourite;
+    @BindView(R.id.view_details)
+    Button view_details;
 
     // Realm Instance
     private Realm realm;
@@ -137,7 +148,9 @@ public class MainActivity extends AppCompatActivity
     // Check if started from FavouriteActivity to mark out that favourited parking spot.
     private boolean fromFavourite;
     // HDBParking from favourite
-    private HDBParking mFavouriteParkingLot;
+    private HDBParking mFavouriteHDBParkingLot;
+
+    private ShoppingParking mFavouriteShoppingParkingLot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,9 +176,14 @@ public class MainActivity extends AppCompatActivity
         // Retrieve parcel from FavouriteActivity, if any
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            mFavouriteParkingLot = extras.getParcelable(FavouriteActivity.PARKING_LOT_FAVOURITE);
-            if (mFavouriteParkingLot != null)
+            mFavouriteHDBParkingLot = extras.getParcelable(FavouriteActivity.HDB_PARKING_LOT_FAVOURITE);
+            if (mFavouriteHDBParkingLot != null)
                 fromFavourite = true;
+            else {
+                mFavouriteShoppingParkingLot = extras.getParcelable(FavouriteActivity.SHOPPING_PARKING_LOT_FAVOURITE);
+                if (mFavouriteShoppingParkingLot != null)
+                    fromFavourite = true;
+            }
         }
 
         // Retrieve the content view that renders the map.
@@ -192,7 +210,10 @@ public class MainActivity extends AppCompatActivity
 
         PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-
+        AutocompleteFilter typeFilter = new AutocompleteFilter.Builder()
+                .setCountry("SG")
+                .build();
+        autocompleteFragment.setFilter(typeFilter);
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
@@ -212,8 +233,10 @@ public class MainActivity extends AppCompatActivity
                         .title(mName));
                 Log.i(TAG, "Lat: " + mLatLng.latitude + "\nLong: " + mLatLng.longitude);
                 setDummyData();
-                setDataPoints();
+                setDataPointsForHDB();
+                setDataPointsForShopping();
                 //apiCall(mLatLng.latitude, mLatLng.longitude);
+                //apiShoppingCall(mLatLng.latitude, mLatLng.longitude);
             }
 
             @Override
@@ -227,17 +250,33 @@ public class MainActivity extends AppCompatActivity
     /**
      * makes apicall and set the markers to the point and adding the data to the hashmap
      */
-    private void setDataPoints() {
-        // apicall
-        // always clear the data in the hashmap so it only contains the most recent 5 datapoints.
-        hashMap.clear();
-        for (HDBParking mParkingLot : myParkingLots) {
-            LatLng parkingLatLng = new LatLng(mParkingLot.getmLat(),mParkingLot.getmLon());
-            Marker marker = setMarkers((parkingLatLng),(mParkingLot.getmCarpark_no()));
-            marker.setIcon(bitmapDescriptorFromVector(this,R.drawable.ic_local_parking_black_24dp));
-            Log.d(TAG, mParkingLot.getmCarpark_no());
-            // each marker is mapped to the parking lot to show the data later on.
-            hashMap.put(marker,mParkingLot);
+    private void setDataPointsForHDB() {
+        if (myParkingLots!= null) {
+            // always clear the data in the hashmap so it only contains the most recent 5 datapoints.
+            hashMap.clear();
+            for (HDBParking mParkingLot : myParkingLots) {
+                LatLng parkingLatLng = new LatLng(mParkingLot.getmLat(), mParkingLot.getmLon());
+                Marker marker = setMarkers((parkingLatLng), (mParkingLot.getmCarpark_no()));
+                marker.setIcon(bitmapDescriptorFromVector(this, R.drawable.ic_local_parking_black_24dp));
+                Log.d(TAG, mParkingLot.getmCarpark_no());
+                // each marker is mapped to the parking lot to show the data later on.
+                hashMap.put(marker, mParkingLot);
+            }
+        }
+    }
+
+    private void setDataPointsForShopping(){
+        if (myShoppingLots != null) {
+            // always clear the data in the hashmap so it only contains the most recent shopingPoints.
+            shoppingMap.clear();
+            for (ShoppingParking mParkingLot : myShoppingLots) {
+                LatLng parkingLatLng = new LatLng(mParkingLot.getmLat(), mParkingLot.getmLon());
+                Marker marker = setMarkers((parkingLatLng), (mParkingLot.getmCarpark_no()));
+                //marker.setIcon(bitmapDescriptorFromVector(this, R.drawable.ic_local_parking_black_24dp));
+                Log.d(TAG, mParkingLot.getmCarpark_no());
+                // each marker is mapped to the parking lot to show the data later on.
+                shoppingMap.put(marker, mParkingLot);
+            }
         }
     }
 
@@ -281,6 +320,31 @@ public class MainActivity extends AppCompatActivity
             }
             @Override
             public void onFailure(Call<HDBParkingLotResult> call, Throwable t) {
+
+                Log.e(TAG,"FAILED!");
+            }
+        });
+    }
+
+    private void apiShoppingCall(double lat, double lon) {
+        myAPIInterface = RetrofitClient.getClient(myURL).create(ParkrAPIInterface.class);
+        Call<ShoppingParkingLotResult> call = myAPIInterface.getShoppingParkingLots(lat,lon);
+        call.enqueue(new Callback<ShoppingParkingLotResult>() {
+            @Override
+            public void onResponse(Call<ShoppingParkingLotResult> call, Response<ShoppingParkingLotResult> response) {
+                ShoppingParkingLotResult results = response.body();
+                if (results != null) {
+                    Log.i(TAG, "Shopping Worked");
+                    ArrayList<ShoppingParking> parkingLots = results.parkingLots;
+                    myShoppingLots = parkingLots;
+                    EventBus.getDefault().post(new ShoppingAsyncCompletedEvent());
+                    for (ShoppingParking mParkingLot : myShoppingLots) {
+                        Log.i(TAG,"Lat: " + mParkingLot.getmLat() + "\nLon: " + mParkingLot.getmLon());
+                    }
+                }
+            }
+            @Override
+            public void onFailure(Call<ShoppingParkingLotResult> call, Throwable t) {
 
                 Log.e(TAG,"FAILED!");
             }
@@ -338,7 +402,7 @@ public class MainActivity extends AppCompatActivity
         if (parkingLot != null) {
             Log.e(TAG,"Not Null!");
             Intent intent = new Intent(mContext, ParkingLotDetails.class);
-            intent.putExtra(PARKING_LOT_DETAILS, parkingLot);
+            intent.putExtra(HDB_PARKING_LOT_DETAILS, parkingLot);
             mContext.startActivity(intent);
         }
     }
@@ -396,11 +460,21 @@ public class MainActivity extends AppCompatActivity
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
                         }
                         else if (fromFavourite) {
-                            LatLng latLng = new LatLng(mFavouriteParkingLot.getmLat(),mFavouriteParkingLot.getmLon());
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                    latLng, DEFAULT_ZOOM));
-                            Marker marker = setMarkers(latLng, mFavouriteParkingLot.getmCarpark_no());
-                            //hashMap.put(marker,mFavouriteParkingLot);
+                            if (mFavouriteHDBParkingLot != null) {
+                                LatLng latLng = new LatLng(mFavouriteHDBParkingLot.getmLat(), mFavouriteHDBParkingLot.getmLon());
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                        latLng, DEFAULT_ZOOM));
+                                Marker marker = setMarkers(latLng, mFavouriteHDBParkingLot.getmCarpark_no());
+                                hashMap.put(marker,mFavouriteHDBParkingLot);
+                            }
+                            else if (mFavouriteShoppingParkingLot != null)
+                            {
+                                LatLng latLng = new LatLng(mFavouriteShoppingParkingLot.getmLat(), mFavouriteShoppingParkingLot.getmLon());
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                        latLng, DEFAULT_ZOOM));
+                                Marker marker = setMarkers(latLng, mFavouriteShoppingParkingLot.getmCarpark_no());
+                                shoppingMap.put(marker,mFavouriteShoppingParkingLot);
+                            }
                         }
                         else {
                             Log.d(TAG, "Current location is null. Using defaults.");
@@ -491,6 +565,7 @@ public class MainActivity extends AppCompatActivity
                     "ELECTRONIC PARKING","7AM-10.30PM","SUN & PH FR 7AM-10.30PM","NO", "50", "C"));
             myParkingLots.add(new HDBParking("Y9", 1.427824,103.834013,  "50","BLK 747/752 YISHUN STREET 72", "SURFACE CAR PARK",
                     "ELECTRONIC PARKING","WHOLE DAY","SUN & PH FR 7AM-10.30PM","YES", "50", "C"));
+            myShoppingLots.add(new ShoppingParking("N1", 1.443824,103.834013, "50", "Northpoint", "Frasers"));
     }
 
 
@@ -504,12 +579,23 @@ public class MainActivity extends AppCompatActivity
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(AsyncCompletedEvent event){
         // your implementation
-        setDataPoints();
+        if (myParkingLots!= null) {
+            setDataPointsForHDB();
+        }
+        //Toast.makeText(this, "Hello!", Toast.LENGTH_LONG).show();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(ShoppingAsyncCompletedEvent event){
+        // your implementation
+        if (myShoppingLots!= null) {
+            setDataPointsForShopping();
+        }
         //Toast.makeText(this, "Hello!", Toast.LENGTH_LONG).show();
     }
 
     @Override
-    public boolean onMarkerClick(Marker marker) {
+    public boolean onMarkerClick(final Marker marker) {
 
         if (hashMap.containsKey(marker)){
             HDBParking mParkingLot = hashMap.get(marker);
@@ -520,16 +606,63 @@ public class MainActivity extends AppCompatActivity
             setBottomViewHDB(mParkingLot);
         }
         marker.showInfoWindow();
+        // setButton
 
         return true;
     }
 
     private void setBottomViewHDB(final HDBParking parkingLot){
         if (parkingLot != null) {
+            bottom_sheet_total.setVisibility(View.VISIBLE);
+            bottom_sheet_lot_type.setVisibility(View.VISIBLE);
             bottom_sheet_title.setText("Address: " + parkingLot.getmAddress());
             bottom_sheet_lots.setText("Total Lots: " + parkingLot.getmLots_available());
             bottom_sheet_total.setText("Current Lots Available: " + parkingLot.getmTotal_lots_available());
             bottom_sheet_lot_type.setText("Lots Type: " + parkingLot.getmLots_type());
+            view_details.setVisibility(View.VISIBLE);
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+
+            // check if it has already been favourited(if it is, set the full heartshape)
+            if (favouriteHDBExists(parkingLot)) {
+                favourite.setImageResource(R.drawable.ic_favorite_black_24dp);
+            }
+            else
+            {
+                favourite.setImageResource(R.drawable.ic_favorite_border_black_24dp);
+            }
+
+            favourite.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!favouriteHDBExists(parkingLot)){
+                        addFavourite(parkingLot);
+                        favourite.setImageResource(R.drawable.ic_favorite_black_24dp);
+                    }
+                    else
+                    {
+                        removeFavourite(parkingLot);
+                        favourite.setImageResource(R.drawable.ic_favorite_border_black_24dp);
+                    }
+                }
+            });
+            view_details.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mContext, ParkingLotDetails.class);
+                    intent.putExtra(HDB_PARKING_LOT_DETAILS, parkingLot);
+                    mContext.startActivity(intent);
+                }
+            });
+        }
+    }
+
+    private void setBottomViewHDB(final ShoppingParking parkingLot){
+        if (parkingLot != null) {
+            bottom_sheet_total.setVisibility(View.INVISIBLE);
+            bottom_sheet_lot_type.setVisibility(View.INVISIBLE);
+            view_details.setVisibility(View.INVISIBLE);
+            bottom_sheet_title.setText("Shopping Mall: " + parkingLot.getmDevelopment());
+            bottom_sheet_lots.setText("Total Lots: " + parkingLot.getmLots_available());
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
             // check if it has already been favourited(if it is, set the full heartshape)
@@ -558,63 +691,51 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void setBottomViewHDB(final ShoppingParking parkingLot){
-        if (parkingLot != null) {
-            bottom_sheet_title.setText("Shopping Mall: " + parkingLot.getmDevelopment());
-            bottom_sheet_lots.setText("Total Lots: " + parkingLot.getmLots_available());
-            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-
-            // check if it has already been favourited(if it is, set the full heartshape)
-//            if (favouriteHDBExists(parkingLot)) {
-//                favourite.setImageResource(R.drawable.ic_favorite_black_24dp);
-//            }
-//            else
-//            {
-//                favourite.setImageResource(R.drawable.ic_favorite_border_black_24dp);
-//            }
-
-//            favourite.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    if (!favouriteHDBExists(parkingLot)){
-//                        addFavourite(parkingLot);
-//                        favourite.setImageResource(R.drawable.ic_favorite_black_24dp);
-//                    }
-//                    else
-//                    {
-//                        removeFavourite(parkingLot);
-//                        favourite.setImageResource(R.drawable.ic_favorite_border_black_24dp);
-//                    }
-//                }
-//            });
-        }
-    }
-
-    private boolean favouriteHDBExists(HDBParking parkingLot)
+    private boolean favouriteHDBExists(Object o)
     {
-//        // Query Realm for all dogs younger than 2 years old
-//        final RealmResults<ParkingLot> parkingLots = realm.where(ParkingLot.class).findAll();
-//        if (parkingLots.contains(parkingLot)) {
-//            return true;
-//        }
-        HDBParking mParkingLot = realm.where(HDBParking.class).equalTo("mCarpark_no", parkingLot.getmCarpark_no()).findFirst();
-
-        return (mParkingLot!=null);
+        if (o instanceof HDBParking) {
+            HDBParking mParkingLot = (HDBParking) o;
+            return (realm.where(HDBParking.class).equalTo("mCarpark_no", mParkingLot.getmCarpark_no()).findFirst() != null);
+        }
+        else if (o instanceof ShoppingParking) {
+            ShoppingParking mShoppingLot = (ShoppingParking) o;
+            return (realm.where(ShoppingParking.class).equalTo("mCarpark_no", mShoppingLot.getmCarpark_no()).findFirst() != null);
+        }
+        else
+            return false;
     }
 
-    private void addFavourite(HDBParking parkingLot){
+    private void addFavourite(Object o){
         realm.beginTransaction();
-        realm.insert(parkingLot);
+
+        if (o instanceof HDBParking) {
+            HDBParking mParkingLot = (HDBParking) o;
+            realm.insert(mParkingLot);
+            Log.d(TAG,"Favourite Shopping added!");
+        }
+        else if (o instanceof ShoppingParking) {
+            ShoppingParking mShoppingLot = (ShoppingParking) o;
+            realm.insert(mShoppingLot);
+            Log.d(TAG,"Favourite Shopping added!");
+
+        }
         realm.commitTransaction();
-        Log.d(TAG,"Favourite added!");
     }
 
-    private void removeFavourite(HDBParking parkingLot){
+    private void removeFavourite(Object o){
         realm.beginTransaction();
-        HDBParking mParkingLot = realm.where(HDBParking.class).equalTo("mCarpark_no", parkingLot.getmCarpark_no()).findFirst();
-        mParkingLot.deleteFromRealm();
+        if (o instanceof HDBParking) {
+            HDBParking mParkingLot = realm.where(HDBParking.class).equalTo("mCarpark_no", ((HDBParking)o).getmCarpark_no()).findFirst();
+            mParkingLot.deleteFromRealm();
+            Log.d(TAG,"Favourite HDB removed!");
+        }
+        else if (o instanceof ShoppingParking) {
+            ShoppingParking mParkingLot = realm.where(ShoppingParking.class).equalTo("mCarpark_no", ((ShoppingParking)o).getmCarpark_no()).findFirst();
+            mParkingLot.deleteFromRealm();
+            Log.d(TAG,"Favourite Shopping removed!");
+
+        }
         realm.commitTransaction();
-        Log.d(TAG,"Favourite removed!");
     }
 
     private void setBottomSheet() {

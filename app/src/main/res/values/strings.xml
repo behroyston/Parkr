@@ -10,7 +10,15 @@
     <string name="short_term_parking">Short Term Parking</string>
     <string name="free_parking">Free Parking</string>
     <string name="favorite">Favorite</string>
+<<<<<<< HEAD
     <string name="view_details">View Details</string>
     <string name="shopping_centre">Shopping Centres Parkings</string>
     <string name="hdb">HDB Parkings</string>
+=======
+    <string name="title_activity_main_map">Map</string>
+    <string name="facebook_app_id">112030846227737</string>
+    <string name="fb_login_protocol_scheme">fb112030846227737</string>
+    <string name="view_profile">View Profile</string>
+    <string name="auth_failed">Auth Failed!</string>
+>>>>>>> 2f9bec26d05815289ecb4a302ea7cc969e4a5c9d
 </resources>

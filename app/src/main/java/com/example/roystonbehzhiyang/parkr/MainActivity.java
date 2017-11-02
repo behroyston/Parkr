@@ -392,6 +392,9 @@ public class MainActivity extends AppCompatActivity
         {
             Intent intent = new Intent(this, FavouriteActivity.class);
             startActivity(intent);
+        }else if(id == R.id.action_viewProfile){
+            Intent intent = new Intent(this, UserProfileActivity.class);
+            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }

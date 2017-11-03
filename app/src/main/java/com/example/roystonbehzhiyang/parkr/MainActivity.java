@@ -1,26 +1,39 @@
 package com.example.roystonbehzhiyang.parkr;
 
+import android.app.Dialog;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.roystonbehzhiyang.parkr.data.ParkrAPIInterface;
 import com.example.roystonbehzhiyang.parkr.data.RetrofitClient;
@@ -28,8 +41,10 @@ import com.example.roystonbehzhiyang.parkr.eventbus.AsyncCompletedEvent;
 import com.example.roystonbehzhiyang.parkr.eventbus.ShoppingAsyncCompletedEvent;
 import com.example.roystonbehzhiyang.parkr.pojo.HDBParking;
 import com.example.roystonbehzhiyang.parkr.pojo.HDBParkingLotResult;
+import com.example.roystonbehzhiyang.parkr.pojo.Incident;
 import com.example.roystonbehzhiyang.parkr.pojo.ShoppingParking;
 import com.example.roystonbehzhiyang.parkr.pojo.ShoppingParkingLotResult;
+import com.facebook.login.Login;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -52,6 +67,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -152,6 +173,11 @@ public class MainActivity extends AppCompatActivity
 
     private ShoppingParking mFavouriteShoppingParkingLot;
 
+    private DatabaseReference incidentRef;
+    private HashMap<String, Marker> mHashMap = new HashMap<String,Marker>();
+    SharedPreferences pref;
+    SharedPreferences.Editor editor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -203,6 +229,8 @@ public class MainActivity extends AppCompatActivity
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
+        incidentRef = FirebaseDatabase.getInstance().getReference().child("Incident");
+
         // Build the map.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -245,6 +273,112 @@ public class MainActivity extends AppCompatActivity
                 Log.i(TAG, "An error occurred: " + status);
             }
         });
+        FloatingActionButton btnIncident = (FloatingActionButton)findViewById(R.id.fab);
+        btnIncident.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                ReportIncidentFragment incidentFragment = new ReportIncidentFragment();
+                fragmentTransaction.add(R.id.incidentOverlay,incidentFragment);
+                fragmentTransaction.commit();
+            }
+        });
+
+    }
+
+    protected void onStart(){
+        super.onStart();
+
+        ChildEventListener incidentChildListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d("Child:Incident Added", dataSnapshot.getKey());
+
+
+                Incident incident = dataSnapshot.getValue(Incident.class);
+                LatLng incidentLatLng = new LatLng(incident.latitude, incident.longitude);
+                Marker marker;
+
+                android.app.FragmentManager manager = getFragmentManager();
+                manager.popBackStack();
+
+                /*LayoutInflater inflater = getLayoutInflater();
+                View layout = inflater.inflate(R.layout.custom_toast, (ViewGroup)findViewById(R.id.custom_toast_container));
+                TextView incidentType = (TextView)layout.findViewById(R.id.lblRoadIncident);
+                TextView icidentLct = (TextView)layout.findViewById(R.id.lblIncidentLocation);
+                ImageView incidentIcon = (ImageView)layout.findViewById(R.id.incidentIcon);
+
+                Toast incidentToast = new Toast(getApplicationContext());
+                incidentToast.setGravity(Gravity.CENTER_VERTICAL,0,0);
+                incidentToast.setDuration(Toast.LENGTH_SHORT);
+                incidentToast.setView(layout);*/
+
+                switch(incident.incidentType){
+                    case "Road Block":
+                        marker = mMap.addMarker(new MarkerOptions().position(incidentLatLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_roadblock)));
+                        mHashMap.put(incident.uid,marker);
+                        break;
+                    case "Heavy Traffic":
+                        marker = mMap.addMarker(new MarkerOptions().position(incidentLatLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_trafficjam)));
+                        mHashMap.put(incident.uid,marker);
+                        break;
+                    case "Road Works":
+                        marker = mMap.addMarker(new MarkerOptions().position(incidentLatLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_roadworks)));
+                        mHashMap.put(incident.uid,marker);
+                        break;
+                    case "Accident":
+                        marker = mMap.addMarker(new MarkerOptions().position(incidentLatLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_accident)));
+                        mHashMap.put(incident.uid,marker);
+                        break;
+                    case "Tree Fall":
+                        marker = mMap.addMarker(new MarkerOptions().position(incidentLatLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_treefall)));
+                        mHashMap.put(incident.uid,marker);
+                        break;
+                    case "Chain Accident":
+                        marker = mMap.addMarker(new MarkerOptions().position(incidentLatLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_chainaccident)));
+                        mHashMap.put(incident.uid,marker);
+                        break;
+                    case "Flood":
+                        marker = mMap.addMarker(new MarkerOptions().position(incidentLatLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_flood)));
+                        mHashMap.put(incident.uid,marker);
+                        break;
+                    case "Oil Spill":
+                        marker = mMap.addMarker(new MarkerOptions().position(incidentLatLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_oilspill)));
+                        mHashMap.put(incident.uid,marker);
+                        break;
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d("Child:Incident Removed", dataSnapshot.getKey());
+                Marker marker = mHashMap.get(dataSnapshot.getKey());
+                if(marker != null){
+                    mHashMap.remove(dataSnapshot.getKey());
+                    marker.remove();
+                }
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+
+        //incidentRef.addListenerForSingleValueEvent(incidentChangeListerner);
+        incidentRef.addChildEventListener(incidentChildListener);
     }
 
     /**
@@ -395,6 +529,13 @@ public class MainActivity extends AppCompatActivity
         }else if(id == R.id.action_viewProfile){
             Intent intent = new Intent(this, UserProfileActivity.class);
             startActivity(intent);
+        }else if(id == R.id.action_logout){
+            FirebaseAuth.getInstance().signOut();
+            pref = pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+            editor = pref.edit();
+            editor.remove("uuid");
+            editor.commit();
+            Intent intent = new Intent(this, LoginActivity.class);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -769,11 +910,5 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        realm.close();
     }
 }

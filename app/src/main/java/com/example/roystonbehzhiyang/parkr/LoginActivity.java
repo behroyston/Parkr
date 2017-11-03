@@ -3,9 +3,12 @@ package com.example.roystonbehzhiyang.parkr;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -44,6 +47,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private EditText txtPassword;
     private ImageView hiddenFbPhoto;
     private static final String TAG = "Login Activity";
+    private boolean mLocationPermissionGranted;
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
     SharedPreferences pref;
     private Editor editor;
@@ -53,6 +58,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getLocationPermission();
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_login);
         mAuth = FirebaseAuth.getInstance();
@@ -219,6 +225,22 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     public void onTokenRefresh(){
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+    }
 
+    private void getLocationPermission() {
+        /*
+         * Request location permission, so that we can get the location of the
+         * device. The result of the permission request is handled by a callback,
+         * onRequestPermissionsResult.
+         */
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            mLocationPermissionGranted = true;
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
     }
 }

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageButton
+            android:id="@+id/btnRoadWorks"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="23dp"
+            android:layout_marginStart="23dp"
+            android:layout_marginTop="32dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/btn_roadworks"
+            android:background="@android:color/transparent"/>
+
+        <ImageButton
+            android:id="@+id/btnRoadBlock"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignTop="@+id/btnRoadWorks"
+            android:layout_centerHorizontal="true"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/btn_roadblock"
+            android:background="@android:color/transparent"/>
+
+        <ImageButton
+            android:id="@+id/btnTrafficJam"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignTop="@+id/btnRoadBlock"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_toEndOf="@+id/btnRoadBlock"
+            android:layout_toRightOf="@+id/btnRoadBlock"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/btn_trafficjam"
+            android:background="@android:color/transparent"/>
+
+        <ImageButton
+            android:id="@+id/btnAccident"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignLeft="@+id/textView7"
+            android:layout_alignStart="@+id/textView7"
+            android:layout_below="@+id/textView7"
+            android:layout_marginTop="26dp"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/btn_caraccident" />
+
+        <ImageButton
+            android:id="@+id/btnChainAccident"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignLeft="@+id/btnRoadBlock"
+            android:layout_alignStart="@+id/btnRoadBlock"
+            android:layout_alignTop="@+id/btnAccident"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/btn_chainaccident"
+            android:background="@android:color/transparent"/>
+
+        <ImageButton
+            android:id="@+id/btnTreeFall"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignLeft="@+id/btnTrafficJam"
+            android:layout_alignStart="@+id/btnTrafficJam"
+            android:layout_alignTop="@+id/btnChainAccident"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/btn_treefall"
+            android:background="@android:color/transparent"/>
+
+        <ImageButton
+            android:id="@+id/btnOilSpill"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignLeft="@+id/btnAccident"
+            android:layout_alignStart="@+id/btnAccident"
+            android:layout_below="@+id/btnAccident"
+            android:layout_marginLeft="42dp"
+            android:layout_marginStart="42dp"
+            android:layout_marginTop="45dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/btn_oilspill"
+            android:background="@android:color/transparent"/>
+
+        <ImageButton
+            android:id="@+id/btnFlood"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignEnd="@+id/btnTreeFall"
+            android:layout_alignRight="@+id/btnTreeFall"
+            android:layout_alignTop="@+id/btnOilSpill"
+            android:layout_marginEnd="41dp"
+            android:layout_marginRight="41dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/btn_flood"
+            android:background="@android:color/transparent" />
+
+        <TextView
+            android:id="@+id/textView7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/btnRoadWorks"
+            android:layout_alignLeft="@+id/btnRoadWorks"
+            android:layout_alignRight="@+id/btnRoadWorks"
+            android:layout_alignStart="@+id/btnRoadWorks"
+            android:layout_below="@+id/btnRoadWorks"
+            android:text="Road Works"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/textView8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/btnRoadBlock"
+            android:layout_alignLeft="@+id/btnRoadBlock"
+            android:layout_alignRight="@+id/btnRoadBlock"
+            android:layout_alignStart="@+id/btnRoadBlock"
+            android:layout_below="@+id/btnRoadBlock"
+            android:text="Road Block"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/btnTrafficJam"
+            android:layout_alignLeft="@+id/btnTrafficJam"
+            android:layout_alignRight="@+id/btnTrafficJam"
+            android:layout_alignStart="@+id/btnTrafficJam"
+            android:layout_below="@+id/btnTrafficJam"
+            android:text="Traffic Jam"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/textView10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/btnAccident"
+            android:layout_alignLeft="@+id/btnAccident"
+            android:layout_alignRight="@+id/btnAccident"
+            android:layout_alignStart="@+id/btnAccident"
+            android:layout_below="@+id/btnAccident"
+            android:text="Accident"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/textView11"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/btnChainAccident"
+            android:layout_alignLeft="@+id/btnChainAccident"
+            android:layout_alignRight="@+id/btnChainAccident"
+            android:layout_alignStart="@+id/btnChainAccident"
+            android:layout_below="@+id/btnChainAccident"
+            android:text="Chain Accident"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/textView12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/btnTreeFall"
+            android:layout_alignLeft="@+id/btnTreeFall"
+            android:layout_alignRight="@+id/btnTreeFall"
+            android:layout_alignStart="@+id/btnTreeFall"
+            android:layout_below="@+id/btnTreeFall"
+            android:text="Tree Fall"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/textView13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/btnOilSpill"
+            android:layout_alignLeft="@+id/btnOilSpill"
+            android:layout_alignRight="@+id/btnOilSpill"
+            android:layout_alignStart="@+id/btnOilSpill"
+            android:layout_below="@+id/btnOilSpill"
+            android:text="Oil Spill"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/textView14"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/btnFlood"
+            android:layout_alignLeft="@+id/btnFlood"
+            android:layout_alignRight="@+id/btnFlood"
+            android:layout_alignStart="@+id/btnFlood"
+            android:layout_below="@+id/btnFlood"
+            android:text="Flooding"
+            android:textAlignment="center" />
+    </RelativeLayout>
+</LinearLayout>

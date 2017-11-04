@@ -8,7 +8,13 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:paddingBottom="10dp"
+        android:paddingEnd="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingStart="10dp"
+        android:paddingTop="10dp">
 
         <ImageButton
             android:id="@+id/btnRoadWorks"
@@ -20,9 +26,9 @@
             android:layout_marginLeft="23dp"
             android:layout_marginStart="23dp"
             android:layout_marginTop="32dp"
+            android:background="@android:color/transparent"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/btn_roadworks"
-            android:background="@android:color/transparent"/>
+            app:srcCompat="@drawable/btn_roadworks" />
 
         <ImageButton
             android:id="@+id/btnRoadBlock"
@@ -30,9 +36,9 @@
             android:layout_height="100dp"
             android:layout_alignTop="@+id/btnRoadWorks"
             android:layout_centerHorizontal="true"
+            android:background="@android:color/transparent"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/btn_roadblock"
-            android:background="@android:color/transparent"/>
+            app:srcCompat="@drawable/btn_roadblock" />
 
         <ImageButton
             android:id="@+id/btnTrafficJam"
@@ -43,9 +49,9 @@
             android:layout_marginStart="20dp"
             android:layout_toEndOf="@+id/btnRoadBlock"
             android:layout_toRightOf="@+id/btnRoadBlock"
+            android:background="@android:color/transparent"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/btn_trafficjam"
-            android:background="@android:color/transparent"/>
+            app:srcCompat="@drawable/btn_trafficjam" />
 
         <ImageButton
             android:id="@+id/btnAccident"
@@ -66,20 +72,20 @@
             android:layout_alignLeft="@+id/btnRoadBlock"
             android:layout_alignStart="@+id/btnRoadBlock"
             android:layout_alignTop="@+id/btnAccident"
+            android:background="@android:color/transparent"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/btn_chainaccident"
-            android:background="@android:color/transparent"/>
+            app:srcCompat="@drawable/btn_chainaccident" />
 
         <ImageButton
             android:id="@+id/btnTreeFall"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_alignLeft="@+id/btnTrafficJam"
-            android:layout_alignStart="@+id/btnTrafficJam"
+            android:layout_alignLeft="@+id/textView9"
+            android:layout_alignStart="@+id/textView9"
             android:layout_alignTop="@+id/btnChainAccident"
+            android:background="@android:color/transparent"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/btn_treefall"
-            android:background="@android:color/transparent"/>
+            app:srcCompat="@drawable/btn_treefall" />
 
         <ImageButton
             android:id="@+id/btnOilSpill"
@@ -91,9 +97,9 @@
             android:layout_marginLeft="42dp"
             android:layout_marginStart="42dp"
             android:layout_marginTop="45dp"
+            android:background="@android:color/transparent"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/btn_oilspill"
-            android:background="@android:color/transparent"/>
+            app:srcCompat="@drawable/btn_oilspill" />
 
         <ImageButton
             android:id="@+id/btnFlood"
@@ -104,9 +110,9 @@
             android:layout_alignTop="@+id/btnOilSpill"
             android:layout_marginEnd="41dp"
             android:layout_marginRight="41dp"
+            android:background="@android:color/transparent"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/btn_flood"
-            android:background="@android:color/transparent" />
+            app:srcCompat="@drawable/btn_flood" />
 
         <TextView
             android:id="@+id/textView7"

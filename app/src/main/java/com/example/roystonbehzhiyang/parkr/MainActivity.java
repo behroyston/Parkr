@@ -30,6 +30,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -45,6 +46,7 @@ import com.example.roystonbehzhiyang.parkr.pojo.Incident;
 import com.example.roystonbehzhiyang.parkr.pojo.ShoppingParking;
 import com.example.roystonbehzhiyang.parkr.pojo.ShoppingParkingLotResult;
 import com.facebook.login.Login;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -67,12 +69,15 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.vision.Frame;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -178,6 +183,11 @@ public class MainActivity extends AppCompatActivity
     SharedPreferences pref;
     SharedPreferences.Editor editor;
 
+    private FragmentManager fragmentManager;
+    private FragmentTransaction fragmentTransaction;
+    private ReportIncidentFragment incidentFragment;
+    private ChildEventListener iPostListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -277,10 +287,10 @@ public class MainActivity extends AppCompatActivity
         btnIncident.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentManager = getSupportFragmentManager();
+                fragmentTransaction = fragmentManager.beginTransaction();
 
-                ReportIncidentFragment incidentFragment = new ReportIncidentFragment();
+                incidentFragment = new ReportIncidentFragment();
                 fragmentTransaction.add(R.id.incidentOverlay,incidentFragment);
                 fragmentTransaction.commit();
             }
@@ -290,7 +300,6 @@ public class MainActivity extends AppCompatActivity
 
     protected void onStart(){
         super.onStart();
-
         ChildEventListener incidentChildListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -300,20 +309,6 @@ public class MainActivity extends AppCompatActivity
                 Incident incident = dataSnapshot.getValue(Incident.class);
                 LatLng incidentLatLng = new LatLng(incident.latitude, incident.longitude);
                 Marker marker;
-
-                android.app.FragmentManager manager = getFragmentManager();
-                manager.popBackStack();
-
-                /*LayoutInflater inflater = getLayoutInflater();
-                View layout = inflater.inflate(R.layout.custom_toast, (ViewGroup)findViewById(R.id.custom_toast_container));
-                TextView incidentType = (TextView)layout.findViewById(R.id.lblRoadIncident);
-                TextView icidentLct = (TextView)layout.findViewById(R.id.lblIncidentLocation);
-                ImageView incidentIcon = (ImageView)layout.findViewById(R.id.incidentIcon);
-
-                Toast incidentToast = new Toast(getApplicationContext());
-                incidentToast.setGravity(Gravity.CENTER_VERTICAL,0,0);
-                incidentToast.setDuration(Toast.LENGTH_SHORT);
-                incidentToast.setView(layout);*/
 
                 switch(incident.incidentType){
                     case "Road Block":
@@ -377,8 +372,8 @@ public class MainActivity extends AppCompatActivity
             }
         };
 
-        //incidentRef.addListenerForSingleValueEvent(incidentChangeListerner);
         incidentRef.addChildEventListener(incidentChildListener);
+        iPostListener = incidentChildListener;
     }
 
     /**
@@ -530,12 +525,15 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, UserProfileActivity.class);
             startActivity(intent);
         }else if(id == R.id.action_logout){
+            incidentRef.removeEventListener(iPostListener);
             FirebaseAuth.getInstance().signOut();
+            LoginManager.getInstance().logOut();
             pref = pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
             editor = pref.edit();
             editor.remove("uuid");
             editor.commit();
             Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }

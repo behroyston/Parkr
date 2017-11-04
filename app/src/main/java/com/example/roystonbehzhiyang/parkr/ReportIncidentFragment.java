@@ -118,34 +118,42 @@ public class ReportIncidentFragment extends Fragment implements View.OnClickList
                 case "Road Block":
                     incident = new Incident(key,mLocation.getLatitude(),mLocation.getLongitude(),"Road Block",loggedInUserUID);
                     mDatabase.child("Incident").child(key).setValue(incident);
+                    getActivity().onBackPressed();
                     break;
-                case "Heavy Traffic":
+                case "Traffic Jam":
                     incident = new Incident(key,mLocation.getLatitude(),mLocation.getLongitude(),"Heavy Traffic",loggedInUserUID);
                     mDatabase.child("Incident").child(key).setValue(incident);
+                    getActivity().onBackPressed();
                     break;
                 case "Road Works":
                     incident = new Incident(key,mLocation.getLatitude(),mLocation.getLongitude(),"Road Works",loggedInUserUID);
                     mDatabase.child("Incident").child(key).setValue(incident);
+                    getActivity().onBackPressed();
                     break;
                 case "Accident":
                     incident = new Incident(key,mLocation.getLatitude(),mLocation.getLongitude(),"Accident",loggedInUserUID);
                     mDatabase.child("Incident").child(key).setValue(incident);
+                    getActivity().onBackPressed();
                     break;
                 case "Tree Fall":
                     incident = new Incident(key,mLocation.getLatitude(),mLocation.getLongitude(),"Tree Fall",loggedInUserUID);
                     mDatabase.child("Incident").child(key).setValue(incident);
+                    getActivity().onBackPressed();
                     break;
                 case "Chain Accident":
                     incident = new Incident(key,mLocation.getLatitude(),mLocation.getLongitude(),"Chain Accident",loggedInUserUID);
                     mDatabase.child("Incident").child(key).setValue(incident);
+                    getActivity().onBackPressed();
                     break;
                 case "Flood":
                     incident = new Incident(key,mLocation.getLatitude(),mLocation.getLongitude(),"Flood",loggedInUserUID);
                     mDatabase.child("Incident").child(key).setValue(incident);
+                    getActivity().onBackPressed();
                     break;
                 case "Oil Spill":
                     incident = new Incident(key,mLocation.getLatitude(),mLocation.getLongitude(),"Oil Spill",loggedInUserUID);
                     mDatabase.child("Incident").child(key).setValue(incident);
+                    getActivity().onBackPressed();
                     break;
             }
 

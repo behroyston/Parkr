@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -47,8 +48,12 @@ import com.example.roystonbehzhiyang.parkr.pojo.ShoppingParking;
 import com.example.roystonbehzhiyang.parkr.pojo.ShoppingParkingLotResult;
 import com.facebook.login.Login;
 import com.facebook.login.LoginManager;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.GeoDataClient;
@@ -97,7 +102,10 @@ import retrofit2.Response;
  * An activity that displays a map showing the place at the device's current location.
  */
 public class MainActivity extends AppCompatActivity
-        implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+        implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private GoogleMap mMap;
@@ -167,6 +175,8 @@ public class MainActivity extends AppCompatActivity
     ImageButton favourite;
     @BindView(R.id.view_details)
     Button view_details;
+    @BindView(R.id.route_to_location)
+    Button route_to_location;//Toh Jian Hao Code: The button use to activate routing feature
 
     // Realm Instance
     private Realm realm;
@@ -187,6 +197,21 @@ public class MainActivity extends AppCompatActivity
     private FragmentTransaction fragmentTransaction;
     private ReportIncidentFragment incidentFragment;
     private ChildEventListener iPostListener;
+
+    //Start of Toh Jian Hao Code: Attributes for routing
+
+    //Manages all the code for routing the user to the carpark location which they have selected
+    //Calculate and draws out Polyline to users location on inserted map and keeps track of user's current location and destination location
+    //Main Activity will take care of issues of connection and calling of methods as necessary.
+    private RoutingManager rm;
+
+    //Google API Client is required to connect to the necessary services for routing to work
+    private GoogleApiClient mGoogleApiClient;
+
+    //Request for current location
+    private LocationRequest mLocationRequest;
+
+    //End of Toh Jian Hao Code: Attributes for routing
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -557,7 +582,9 @@ public class MainActivity extends AppCompatActivity
     public void onMapReady(GoogleMap map) {
 
         mMap = map;
-
+        //Toh Jian Hao Code
+        rm = new RoutingManager(mMap);
+        //Toh Jian Hao Code
         if (mMap != null) {
             mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                 @Override
@@ -566,6 +593,21 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         }
+
+        //Toh Jian Code Start
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                buildGoogleApiClient();
+                mMap.setMyLocationEnabled(true);
+            }
+        }
+        else {
+            buildGoogleApiClient();
+            mMap.setMyLocationEnabled(true);
+        }
+        //Toh Jian Code End
 
         mMap.setOnMarkerClickListener(this);
 
@@ -668,10 +710,23 @@ public class MainActivity extends AppCompatActivity
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mLocationPermissionGranted = true;
+
+                    //Start of Toh Jian Hao Code: Permission and Building of Google API Client
+                    if (ContextCompat.checkSelfPermission(this,
+                            android.Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+
+                        if (mGoogleApiClient == null) {
+                            buildGoogleApiClient();
+                        }
+                        mMap.setMyLocationEnabled(true);
+
+                        //End of Toh Jian Hao Code: Permission and Building of Google API Client
                 }
             }
         }
         updateLocationUI();
+    }
     }
 
     /**
@@ -764,6 +819,9 @@ public class MainActivity extends AppCompatActivity
             view_details.setVisibility(View.VISIBLE);
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
+            //Toh Jian Hao Code: Set the destination location for the purpose of routing
+            rm.setDestinationLocation(new LatLng(parkingLot.getmLat(), parkingLot.getmLon()));
+
             // check if it has already been favourited(if it is, set the full heartshape)
             if (favouriteHDBExists(parkingLot)) {
                 favourite.setImageResource(R.drawable.ic_favorite_black_24dp);
@@ -793,6 +851,15 @@ public class MainActivity extends AppCompatActivity
                     Intent intent = new Intent(mContext, ParkingLotDetails.class);
                     intent.putExtra(HDB_PARKING_LOT_DETAILS, parkingLot);
                     mContext.startActivity(intent);
+                }
+            });
+
+            //Toh Jian Hao Code: Set on click for route_to_location button
+            route_to_location.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    rm.setTracking(true);
+                    rm.trackLocation();
                 }
             });
         }
@@ -909,4 +976,59 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+
+    //Start of Toh Jian Hao Code: Methods for Routing
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(1000);
+        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest,this);
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    //Listener set to be triggered everytime device location has changed.
+    //Notes down user's current location and also redraws polyline if routing.
+    public void onLocationChanged(Location location) {
+        //New Code: Find Current Location
+        //move map camera
+        //Obtain current location
+        rm.setCurrentLocation(new LatLng(location.getLatitude(), location.getLongitude()));
+
+        Log.d("Toh Jian Hao Code ", "" + rm.getTracking());
+
+
+        rm.clearPolyline();
+        if(rm.getTracking()) {
+            rm.trackLocation();
+        }
+        Log.d("Toh Jian Hao Code ", String.format("latitude:%.3f longitude:%.3f", location.getLatitude(), location.getLongitude()));
+        Log.d("Toh Jian Hao Code ", "Exit");
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
+
+    //End of Toh Jian Hao Code: Methods for Routing
 }

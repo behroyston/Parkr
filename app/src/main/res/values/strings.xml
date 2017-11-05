@@ -18,6 +18,7 @@
     <string name="fb_login_protocol_scheme">fb112030846227737</string>
     <string name="view_profile">View Profile</string>
     <string name="auth_failed">Auth Failed!</string>
+    <string name="route">route</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

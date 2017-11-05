@@ -67,12 +67,23 @@
                 tools:text="Lot Type:"/>
         </LinearLayout>
 
-        <Button
-            android:id="@+id/view_details"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/view_details" />
+            android:orientation="horizontal"
+            android:gravity="center">
+            <Button
+                android:id="@+id/view_details"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/view_details" />
+
+            <Button
+                android:id="@+id/route_to_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/route" />
+        </LinearLayout>
 
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>

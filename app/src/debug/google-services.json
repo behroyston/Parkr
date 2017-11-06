@@ -1,0 +1,94 @@
+{
+  "project_info": {
+    "project_number": "390559478537",
+    "firebase_url": "https://parking-297e0.firebaseio.com",
+    "project_id": "parking-297e0",
+    "storage_bucket": "parking-297e0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:390559478537:android:5c30010fc055c9de",
+        "android_client_info": {
+          "package_name": "com.fff.parkingapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "390559478537-3bpik8s6vn9gp2j3p0gn5n8bhq2t2vpo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fff.parkingapp",
+            "certificate_hash": "3820c3b752b487f48a352d811d5c00477d870519"
+          }
+        },
+        {
+          "client_id": "390559478537-eeed9kqklrg0t50lia1sqb5n3sarbm1c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fff.parkingapp",
+            "certificate_hash": "aa6438d7954f10ead522bed166db0745b272b2b1"
+          }
+        },
+        {
+          "client_id": "390559478537-tegsus25r1trj2hmrncq9895q6dgfuo4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDXTHyQMnj6sZs1dc4u4hsBY9gVuzgBSs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "390559478537-tegsus25r1trj2hmrncq9895q6dgfuo4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:390559478537:android:cf7576c491cb47a1",
+        "android_client_info": {
+          "package_name": "com.example.roystonbehzhiyang.parkr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "390559478537-tegsus25r1trj2hmrncq9895q6dgfuo4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDXTHyQMnj6sZs1dc4u4hsBY9gVuzgBSs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

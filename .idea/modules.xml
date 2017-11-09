@@ -3,10 +3,13 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Parkr.iml" filepath="$PROJECT_DIR$/Parkr.iml" />
+<<<<<<< HEAD
       <module fileurl="file://$PROJECT_DIR$/Parkr.iml" filepath="$PROJECT_DIR$/Parkr.iml" />
       <module fileurl="file://$PROJECT_DIR$/Parkr.iml" filepath="$PROJECT_DIR$/Parkr.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+=======
+>>>>>>> d9d66e01e99ba8293f0a0a2d9e53b5eec4bbfa1d
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

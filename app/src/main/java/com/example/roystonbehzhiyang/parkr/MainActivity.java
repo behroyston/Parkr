@@ -1,7 +1,5 @@
 package com.example.roystonbehzhiyang.parkr;
 
-import android.app.Dialog;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,25 +15,18 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.roystonbehzhiyang.parkr.data.ParkrAPIInterface;
 import com.example.roystonbehzhiyang.parkr.data.RetrofitClient;
@@ -46,7 +37,6 @@ import com.example.roystonbehzhiyang.parkr.pojo.HDBParkingLotResult;
 import com.example.roystonbehzhiyang.parkr.pojo.Incident;
 import com.example.roystonbehzhiyang.parkr.pojo.ShoppingParking;
 import com.example.roystonbehzhiyang.parkr.pojo.ShoppingParkingLotResult;
-import com.facebook.login.Login;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -74,15 +64,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.vision.Frame;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -210,6 +197,10 @@ public class MainActivity extends AppCompatActivity
 
     //Request for current location
     private LocationRequest mLocationRequest;
+
+    //Attributes to temporarily store the Current and Destination Location
+    private LatLng currentLocation; //Refers to the users current location
+    private LatLng destinationLocation; //Refers to the users destination location
 
     //End of Toh Jian Hao Code: Attributes for routing
 
@@ -820,7 +811,7 @@ public class MainActivity extends AppCompatActivity
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
             //Toh Jian Hao Code: Set the destination location for the purpose of routing
-            rm.setDestinationLocation(new LatLng(parkingLot.getmLat(), parkingLot.getmLon()));
+            destinationLocation = new LatLng(parkingLot.getmLat(), parkingLot.getmLon());
 
             // check if it has already been favourited(if it is, set the full heartshape)
             if (favouriteHDBExists(parkingLot)) {
@@ -859,7 +850,11 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onClick(View v) {
                     rm.setTracking(true);
-                    rm.trackLocation();
+
+                    if(!(rm.routeLocation(currentLocation, destinationLocation)))
+                    {
+                        Log.d("Fail","Fail");
+                    }
                 }
             });
         }
@@ -1003,15 +998,15 @@ public class MainActivity extends AppCompatActivity
         //New Code: Find Current Location
         //move map camera
         //Obtain current location
-        rm.setCurrentLocation(new LatLng(location.getLatitude(), location.getLongitude()));
+        currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
         Log.d("Toh Jian Hao Code ", "" + rm.getTracking());
 
-
-        rm.clearPolyline();
-        if(rm.getTracking()) {
-            rm.trackLocation();
+        if(!(rm.routeLocation(currentLocation, destinationLocation)))
+        {
+            Log.d("Fail","Fail");
         }
+
         Log.d("Toh Jian Hao Code ", String.format("latitude:%.3f longitude:%.3f", location.getLatitude(), location.getLongitude()));
         Log.d("Toh Jian Hao Code ", "Exit");
     }

@@ -1,5 +1,4 @@
 package com.example.roystonbehzhiyang.parkr;
-
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -30,20 +29,14 @@ public class RoutingManager {
 
     // Initializing
     private GoogleMap mMap;
-    private ArrayList<LatLng> MarkerPoints;
     private boolean tracking;
     private List<HashMap<String, String>> path;
     private MarkerOptions options;
     private LatLng point;
-    private LatLng currentLocation;
-    private LatLng destinationLocation;
     private Polyline currentPath;
 
     public RoutingManager()
     {
-        MarkerPoints = new ArrayList<>();
-        currentLocation = null;
-        destinationLocation = null;
         tracking = false;
     }
 
@@ -54,22 +47,6 @@ public class RoutingManager {
     }
 
     //Getter and setters
-
-    public void setCurrentLocation(LatLng setLocation)
-    {
-        currentLocation = setLocation;
-    }
-
-    public LatLng getCurrentLocation()
-    {
-        return currentLocation;
-    }
-
-    public void setDestinationLocation(LatLng setLocation)
-    {
-        destinationLocation = setLocation;
-    }
-
     public void setTracking(boolean set)
     {
         tracking = set;
@@ -86,38 +63,8 @@ public class RoutingManager {
     }
 
     //Methods
-    public void clearPolyline()
-    {
-        if(currentPath != null) {
-            currentPath.remove();
-        }
-    }
 
-    public void trackLocation()
-    {
-        //mMap.clear();
-        // Add new marker to the Google Map Android API V2
-        //mMap.addMarker(options);
-
-        if(currentLocation == null)
-        {
-            Log.d("Current Location", "Null");
-        }
-
-        if(destinationLocation == null)
-        {
-            Log.d("Destination Location", "Null");
-        }
-
-        String url = getUrl(currentLocation, destinationLocation);
-        Log.d("onMapClick", url.toString());
-        FetchUrl FetchUrl = new FetchUrl();
-
-        // Start downloading json data from Google Directions API
-        FetchUrl.execute(url);
-    }
-
-    public String getUrl(LatLng currentLocation, LatLng destinationLocation) {
+    private String getUrl(LatLng currentLocation, LatLng destinationLocation) {
 
         // Origin of route
         String str_origin = "origin=" + currentLocation.latitude + "," + currentLocation.longitude;
@@ -144,7 +91,7 @@ public class RoutingManager {
     /**
      * A method to download json data from url
      */
-    public String downloadUrl(String strUrl) throws IOException {
+    private String downloadUrl(String strUrl) throws IOException {
         String data = "";
         InputStream iStream = null;
         HttpURLConnection urlConnection = null;
@@ -182,7 +129,28 @@ public class RoutingManager {
         return data;
     }
 
+    public boolean routeLocation(LatLng currentLocation, LatLng destinationLocation)
+    {
+        boolean successful = false;
+        // Add new marker to the Google Map Android API V2
+        if(currentLocation != null && destinationLocation != null) {
 
+            if(tracking) {
+                if(currentPath != null) {
+                    currentPath.remove();
+                }
+            }
+
+            String url = getUrl(currentLocation, destinationLocation);
+            FetchUrl fetchUrl = new FetchUrl();
+            // Start downloading json data from Google Directions API
+            fetchUrl.execute(url);
+
+            successful = true;
+        }
+
+        return successful;
+    }
 
     //Classes
     // Fetches data from url passed
